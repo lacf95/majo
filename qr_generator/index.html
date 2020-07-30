@@ -11,35 +11,35 @@
   <div>
     <div>
       <label>URL</label>
-      <input type="url" placeholder="Insert your URL here"/>
+      <input type="url" placeholder="Insert your URL here" id="url"/>
     </div>
 
     <div>
       <label>Pixel size</label>
-      <select>
-        <option>1 Pixel<option>
-        <option>2 Pixel<option>
-        <option>4 Pixel<option>
-        <option>8 Pixel<option>
+      <select id="pixel-size">
+        <option value="1">1 Pixel</option>
+        <option value="2">2 Pixel</option>
+        <option value="4">4 Pixel</option>
+        <option value="8">8 Pixel</option>
       </select>
     </div>
 
     <div>
       <label>Image format</label>
-      <input type="radio" name="image-format"/>
+      <input type="radio" name="image-format" id="png" value="png" checked/>
       <label>PNG</label>
-      <input type="radio" name="image-format"/>
+      <input type="radio" name="image-format" id="svg" value="svg"/>
       <label>SVG</label>
     </div>
 
-    <button type="button">Generate QR code</button>
+    <button type="button" id="generate-qr">Generate QR code</button>
   </div>
 
   <hr/>
 
   <div>
-    <img src="" style="display: block;"/>
-    <button type="download">Download QR code</button>
+    <img src="" style="display: block;" id="generated-image"/>
+    <button type="download" id="download-qr">Download QR code</button>
   </div>
 
   <script src="./js/qr-generator.js"></script>
