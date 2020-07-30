@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Generator</title>
+</head>
+<body>
+  <h1>QR Generator</h1>
+
+  <hr/>
+
+  <div>
+    <div>
+      <label>URL</label>
+      <input type="url" placeholder="Insert your URL here"/>
+    </div>
+
+    <div>
+      <label>Pixel size</label>
+      <select>
+        <option>1 Pixel<option>
+        <option>2 Pixel<option>
+        <option>4 Pixel<option>
+        <option>8 Pixel<option>
+      </select>
+    </div>
+
+    <div>
+      <label>Image format</label>
+      <input type="radio" name="image-format"/>
+      <label>PNG</label>
+      <input type="radio" name="image-format"/>
+      <label>SVG</label>
+    </div>
+
+    <button type="button">Generate QR code</button>
+  </div>
+
+  <hr/>
+
+  <div>
+    <img src="" style="display: block;"/>
+    <button type="download">Download QR code</button>
+  </div>
+
+  <script src="./js/qr-generator.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
