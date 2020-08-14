@@ -74,9 +74,10 @@ body {
 
 .roles span {
   display: inline-block;
+  margin-right: 4px;
 }
 
-.rol {
+.role {
   background-color: black;
   color: white;
   padding: 5px 10px;
@@ -108,4 +109,8 @@ body {
 
 .difficulty-info {
   background-color: #FF6600;
+}
+
+.hidden {
+  display: none;
 }
