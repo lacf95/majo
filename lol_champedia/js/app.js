@@ -1,45 +1,50 @@
-var lolClient = new LeagueOfLegends();
+var champList = window.localStorage.getItem('champList');
+if (champList) {
+  var champListStorage = JSON.parse(champList);
+  if (champListStorage.expiresAt <= Date.now()) {
+    var lolClient = new LeagueOfLegends();
+    var champListStorage = {
+      champList: lolClient.champList,
+      expiresAt: Date.now() + daysInMiliseconds(2)
+    };
+    window.localStorage.setItem('champList', JSON.stringify(champListStorage));
+  } else {
+    var lolClient = new LeagueOfLegends(champListStorage.champList);
+  }
+} else {
+  var lolClient = new LeagueOfLegends();
+  var champListStorage = {
+    champList: lolClient.champList,
+    expiresAt: Date.now() + 120000
+  };
+  window.localStorage.setItem('champList', JSON.stringify(champListStorage));
+}
+
+var championsContainers;
 var championTemplate = document.getElementById('champ-template').content;
 var championDetailTemplate = document.getElementById('champ-detail-template').content;
-var championsContainers;
-var groupedChampionsContainers;
-var champList = document.getElementById('champ-list');
-var activeChamp = document.querySelector('.champ-active');
+var champListContainer = document.getElementById('champ-list');
 
-
-function createChampClone(champion, template) {
+function createChampDetailClone(champion, template) {
   var clone = template.cloneNode(true);
   clone = document.importNode(clone, true);
-
-  clone.querySelector('.id').value = champion.id;
-  clone.querySelector('.champ-thumbnail').src = champion.thumbnail;
-  clone.querySelector('.champ-thumbnail-name').innerHTML = champion.name;
+  var $ = DOMHelper(clone);
+  $.setAttribute('.champ-splash', 'src', champion.image);
+  $.setHTML('.champ-name', champion.name);
+  $.setHTML('.champ-title', champion.title);
+  $.setHTML('.champ-blurb', champion.description);
+  $.removeHTML('.roles');
+  $.setHTML('.attack-info', `Attack: ${champion.info.attack}`);
+  $.setHTML('.defense-info', `Defense: ${champion.info.defense}`);
+  $.setHTML('.magic-info', `Magic: ${champion.info.magic}`);
+  $.setHTML('.difficulty-info', `Difficulty: ${champion.info.difficulty}`);
+  champion.roles
+    .map(createRole)
+    .forEach(appendElement(clone.querySelector('.roles')));
   return clone;
-};
+}
 
-championsContainers = lolClient.champList.map(function(champion) {
-  return createChampClone(champion, championTemplate);
-});
-
-groupedChampionsContainers = championsContainers.reduce(function(arr, node) {
-  if (arr[arr.length -1].length < 7) {
-    arr[arr.length -1].push(node);
-  } else {
-    arr.push([node]);
-  }
-  return arr;
-}, [[]]);
-
-groupedChampionsContainers.forEach(function(nodeList) {
-  var row = document.createElement('div');
-  row.classList.add('row');
-  nodeList.forEach(function(node) {
-    row.appendChild(node);
-  });
-  champList.appendChild(row);
-});
-
-[].slice.call(document.querySelectorAll('.champ')).forEach(function(element) {
+function onSelectChamp(element) {
   element.onclick = function(){
     var previousActive = document.querySelector('.champ-active');
     if (previousActive) {
@@ -47,32 +52,44 @@ groupedChampionsContainers.forEach(function(nodeList) {
     }
     element.classList.add('champ-active');
     var champion = lolClient.search(element.querySelector('.id').value, 'id');
-    var previousDetailActive = champList.querySelector('.champ-detail');
+    var previousDetailActive = champListContainer.querySelector('.champ-detail');
     if (previousDetailActive) {
-      champList.removeChild(previousDetailActive);
+      champListContainer.removeChild(previousDetailActive);
     }
     element.parentElement.after(createChampDetailClone(champion, championDetailTemplate));
   };
-});
-
-function createChampDetailClone(champion, template) {
-  var clone = template.cloneNode(true);
-  clone = document.importNode(clone, true);
-  clone.querySelector('.champ-splash').src = champion.image;
-  clone.querySelector('.champ-name').innerHTML = champion.name;
-  clone.querySelector('.champ-title').innerHTML = champion.title;
-  clone.querySelector('.champ-blurb').innerHTML = champion.description;
-  clone.querySelector('.roles').innerHTML = null;
-  champion.roles.forEach(function(role) {
-    var roleContainer = document.createElement('span');
-    roleContainer.classList.add('role');
-    roleContainer.innerHTML = role;
-    clone.querySelector('.roles').appendChild(roleContainer);
-  });
-  clone.querySelector('.attack-info').innerHTML = `Attack: ${champion.info.attack}`;
-  clone.querySelector('.defense-info').innerHTML = `Defense: ${champion.info.defense}`;
-  clone.querySelector('.magic-info').innerHTML = `Magic: ${champion.info.magic}`;
-  clone.querySelector('.difficulty-info').innerHTML = `Difficulty: ${champion.info.difficulty}`;
-
-  return clone;
 }
+
+function createChampClone(template) {
+  return function (champion) {
+    var clone = template.cloneNode(true);
+    clone = document.importNode(clone, true);
+    var $ = DOMHelper(clone);
+    $.setAttribute('.id', 'value', champion.id);
+    $.setAttribute('.champ-thumbnail', 'src', champion.thumbnail);
+    $.setHTML('.champ-thumbnail-name', champion.name);
+    return clone;
+  };
+}
+
+function renderChamps(champList) {
+  champListContainer.innerHTML = null;
+  champList
+    .map(createChampClone(championTemplate))
+    .reduce(groupIn(7), [[]])
+    .map(createRow)
+    .forEach(appendElement(champListContainer));
+
+  nodeListEach(document.querySelectorAll('.champ'), onSelectChamp);
+}
+
+var searchButton = document.getElementById('search');
+
+searchButton.onclick = function(){
+  var searchSubjectSelect = document.getElementById('search-subject');
+  var searchSubject = searchSubjectSelect.options[searchSubjectSelect.selectedIndex].value;
+  var searchQuery = document.getElementById('search-query').value;
+  renderChamps(lolClient.filter(searchQuery, searchSubject));
+}
+
+renderChamps(lolClient.champList);

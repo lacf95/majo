@@ -1,15 +1,40 @@
-function LeagueOfLegends(lang) {
+function matches(b) {
+  return function(a) {
+    return a.toUpperCase().search(b.toUpperCase()) > -1;
+  }
+}
+
+function equals(b) {
+  return function(a) {
+    return a == b;
+  }
+}
+
+function listSelector(method) {
+  return function(list, property, func) {
+    return list[method](function(element) {
+      if (Array.isArray(element[property])) {
+        return element[property].some(function(e) {
+          return func(e);
+        });
+      }
+      return func(element[property]);
+    });
+  }
+}
+
+function LeagueOfLegends(champList) {
   this.champList = [];
   // Champions list
   // http://ddragon.leagueoflegends.com/cdn/10.16.1/data/en_US/champion.json
 
   this.search = function search(query, subject = 'name') {
-    if (subject == 'id') {
-      return this.champList.find(function(element) {
-        return element.id == query;
-      });
-    }
+    return listSelector('find')(this.champList, subject, matches(query));
   };
+
+  this.filter = function filter(query, subject = 'name') {
+    return listSelector('filter')(this.champList, subject, matches(query));
+  }
 
   // Aatrox big image can be found at
   // http://ddragon.leagueoflegends.com/cdn/img/champion/loading/Aatrox_0.jpg
@@ -39,5 +64,9 @@ function LeagueOfLegends(lang) {
     xhttp.send();
   };
 
-  this.init();
+  if (champList) {
+    this.champList = champList;
+  } else {
+    this.init();
+  }
 }
