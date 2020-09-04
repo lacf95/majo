@@ -52,3 +52,14 @@ function DOMHelper(node) {
 function daysInMiliseconds(days) {
   return days * 24 * 60 * 60 * 1000;
 }
+
+function storageExpire(time) {
+  return {
+    champList: lolClient.champList,
+    expiresAt: Date.now() + time
+  }
+}
+
+function stringifyChampList(champList) {
+  return window.localStorage.setItem('champList', JSON.stringify(champList));
+}

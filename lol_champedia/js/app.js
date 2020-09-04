@@ -1,23 +1,16 @@
 var champList = window.localStorage.getItem('champList');
+var lolClient = new LeagueOfLegends();
 if (champList) {
   var champListStorage = JSON.parse(champList);
   if (champListStorage.expiresAt <= Date.now()) {
-    var lolClient = new LeagueOfLegends();
-    var champListStorage = {
-      champList: lolClient.champList,
-      expiresAt: Date.now() + daysInMiliseconds(2)
-    };
-    window.localStorage.setItem('champList', JSON.stringify(champListStorage));
+    var champListStorage = storageExpire(daysInMiliseconds(2));
+    stringifyChampList(champListStorage)
   } else {
     var lolClient = new LeagueOfLegends(champListStorage.champList);
   }
 } else {
-  var lolClient = new LeagueOfLegends();
-  var champListStorage = {
-    champList: lolClient.champList,
-    expiresAt: Date.now() + 120000
-  };
-  window.localStorage.setItem('champList', JSON.stringify(champListStorage));
+  var champListStorage = storageExpire(120000);
+  stringifyChampList(champListStorage)
 }
 
 var championsContainers;
